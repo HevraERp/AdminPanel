@@ -1,8 +1,9 @@
 'use client'
 import Layout from "@/components/Layout";
 import supabase from "@/app/lib/supabaseClient"; 
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import Swal from 'sweetalert2';
+import { useSearchParams,usePathname, useRouter } from "next/navigation";
 
 interface Category {
   _id: number;
@@ -14,11 +15,18 @@ export default function  catagories(){
     const [data, setData] = useState<any[]>([]);
     const [categoryName, setCategoryName] = useState('');
     const [editedCategory, setEditedCategory] = useState<Category | null>(null);
+    const searchParams = useSearchParams();
+    const {replace} = useRouter();
+    const pathname = usePathname()
+    const query = searchParams?.get('query') ||'';
 
 const fetchData = async () => {
       // Fetch data
       try {
-        const { data, error } = await supabase.from('categories').select('*');
+        const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .ilike('name',`%${query}%`) ;
         if (error) {
           throw error;
         }
@@ -32,7 +40,12 @@ const fetchData = async () => {
         console.log("erro");
       } 
     };
-fetchData();
+
+    useEffect(() => {
+      fetchData();
+    }, [query]);
+  
+
 
 async function createcategory(event: { preventDefault: () => void; }) {
         event.preventDefault();
@@ -95,14 +108,24 @@ async function createcategory(event: { preventDefault: () => void; }) {
       });
     }
 
+    const handleSearch = (term : string) => {
+      const params = new URLSearchParams(searchParams);
+      if (term){
+         params.set('query', term);
+      }else{
+        params.delete('query')
+      }
+    replace(`${pathname}?${params.toString()}`)
+    }
 
 
     return(
 
         <Layout>
          
-        <h1 className="mt-4">  Categories</h1>
-        <form onSubmit={createcategory}>
+        <h1 >Categories</h1>
+
+        <form onSubmit={createcategory} className="mt-1">
                     <label> {editedCategory ? 'Edit Category ' : 'Create New Category'  }</label>
                     <input
                         type='text'
@@ -112,6 +135,14 @@ async function createcategory(event: { preventDefault: () => void; }) {
                     />
           <button type="submit" className="btn-primary">Save</button>
         </form>
+        <input 
+        className="mt-4"
+        placeholder="Search"
+        onChange={(e) => {
+          handleSearch(e.target.value)
+        }}
+        defaultValue={searchParams.get('query')?.toString()}
+      />
 
         <table className="basic mt-2"> 
           <thead>

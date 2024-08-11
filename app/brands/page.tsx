@@ -1,26 +1,33 @@
 'use client'
 import Layout from "@/components/Layout";
 import supabase from "@/app/lib/supabaseClient"; 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Swal from 'sweetalert2';
+import { useSearchParams,usePathname,useRouter } from "next/navigation";
 
 interface Brand {
   _id: number;
   title: string;
 }
 
-
 export default function brands(){
 
     const [data, setData] = useState<any[]>([]);
     const [brandName, setBrandName] = useState('')
     const [editedBrand , setEditedBrand] = useState<Brand | null>(null);
+    const {replace} = useRouter();
+    const searchParams = useSearchParams();
+    const pathname = usePathname();
+    const query = searchParams?.get('query') || '';
 
 
 const fetchData = async () => {
   // Fetch data
   try {
-    const { data, error } = await supabase.from('brand').select('*');
+    const { data, error } = await supabase
+    .from('brand')
+    .select('*')
+    .ilike('name', `%${query}%`);
     if (error) {
       throw error;
     }
@@ -34,7 +41,10 @@ const fetchData = async () => {
     console.log("erro");
   } 
 };
-fetchData();
+useEffect(() => {
+  fetchData();
+}, [query]);
+
 
 
 
@@ -105,10 +115,21 @@ async function   DeleteBrand(item_id :Number){
         });
       }
 
+  
+    const handleSearch = (term : string) =>{
+        const params = new URLSearchParams(searchParams)
+        if (term){
+              params.set('query',term)
+        }else{
+          params.delete('query')
+        }
+   replace(`${pathname}?${params.toString()}`)
+      }
+
 return(
 
         <Layout>
-     <h1 className="mt-4">Brands</h1>
+     <h1>Brands</h1>
 
     <label>{editedBrand ? 'Edit Brand ' : 'Create New Brand'  }</label> 
         <form onSubmit={createBrand}>
@@ -120,7 +141,14 @@ return(
                 />
                  <button type="submit" className="btn-primary">Save</button>
           </form>
-        
+          <input 
+        className="mt-4"
+        placeholder="Search"
+        onChange={(e) => {
+          handleSearch(e.target.value)
+        }}
+        defaultValue={searchParams.get('query')?.toString()}
+      />
         <table className="basic mt-2">
           <thead>
             <tr>

@@ -1,10 +1,31 @@
 'use client'
 import Nav from "./Nav";
 import Logo from "./Logo";
+import "@/app/globals.css";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 export default function Layout({children}) {
   const [showNav,setShowNav] = useState(false);
+  const router = useRouter();
+  const { data: session } = useSession();
+
+   function signIn(){
+    router.push('/api/auth/signin');
+  }
+  if (!session) {
+    return (
+      <div className="bg-gray-200 w-screen h-screen flex items-center">
+        <div className="text-center w-full">
+      <button  className="login-button"
+      onClick={signIn}>
+        Login</button>
+        </div>
+      </div>
+    );
+  }
+
 
   return (
 

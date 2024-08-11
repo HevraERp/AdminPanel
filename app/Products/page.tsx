@@ -8,15 +8,19 @@ import Swal from 'sweetalert2';
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 export default function Products() {
+
   const [data, setData] = useState<any[]>([]);
   const [totalPages, setTotalPages] = useState(1);
+
+  // to handle search functionality
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { replace } = useRouter();
-  
-  const currentPage = Number(searchParams?.get('page')) || 1;
   const query = searchParams?.get('query') || "";
-  const itemsPerPage = 8; 
+  
+  // handle pagination
+  const currentPage = Number(searchParams?.get('page')) || 1;
+  const itemsPerPage = 4; 
 
   const fetchData = async () => {
     try {
@@ -36,11 +40,14 @@ export default function Products() {
         price: item.price,
         image: item.img_url,
         description: item.description,
+
       }));
       setData(formattedData);
 
       const totalItems = count ?? 0;
       setTotalPages(Math.ceil(totalItems / itemsPerPage));
+
+
     } catch (error) {
       console.log("Error fetching data:", error);
     }
@@ -113,6 +120,7 @@ export default function Products() {
       <table className="basic mt-2">
         <thead>
           <tr>
+            <td>Product Image</td>
             <td>Product name</td>
             <td>Product Description</td>
             <td>Product Price</td>
@@ -123,6 +131,7 @@ export default function Products() {
         <tbody>
           {data.map(product => (
             <tr key={product._id}>
+             <td className="text-black"><img  className ="product-image" src={product.image} /></td>
               <td className="text-black">{product.title}</td>
               <td className="text-black">{product.description}</td>
               <td className="text-black">{product.price}</td>

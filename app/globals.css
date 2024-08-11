@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+
+.product-image {
+  width: 150px ; 
+  height: 100px; 
+}
+
 img{
   max-height: 100%;
 }
@@ -22,7 +28,7 @@ label{
   @apply bg-primary text-white px-4 py-1 rounded-sm shadow-sm;
 }
 table.basic{
-  @apply w-full  bg-white rounded-sm shadow-md;
+  @apply w-full bg-white rounded-sm shadow-md;
 }
 table.basic thead tr td,
 table.basic thead tr th
@@ -43,4 +49,8 @@ table.basic a{
 }
 .btn-default{
   @apply bg-white text-gray-800 px-4 py-1 rounded-sm border border-gray-200 shadow-sm;
+}
+
+.login-button {
+  @apply bg-blue-500 text-white text-xl font-semibold py-3 px-6 rounded-lg shadow-lg hover:bg-blue-600 transition duration-300 ease-in-out;
 }

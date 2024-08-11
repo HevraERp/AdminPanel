@@ -15,18 +15,27 @@ export default function  catagories(){
     const [data, setData] = useState<any[]>([]);
     const [categoryName, setCategoryName] = useState('');
     const [editedCategory, setEditedCategory] = useState<Category | null>(null);
+    const [totalPage , setTotalPage] = useState(1)
+
+
     const searchParams = useSearchParams();
     const {replace} = useRouter();
     const pathname = usePathname()
     const query = searchParams?.get('query') ||'';
 
+    const currentPage = Number(searchParams.get('page') || 1);
+    const ItemsPerPage =  8;
+
+
 const fetchData = async () => {
       // Fetch data
       try {
-        const { data, error } = await supabase
+        const { data, error, count } = await supabase
         .from('categories')
-        .select('*')
-        .ilike('name',`%${query}%`) ;
+        .select('*', {count : 'exact' })
+        .ilike('name',`%${query}%`) 
+        .range((currentPage - 1) * ItemsPerPage, currentPage * ItemsPerPage - 1);
+
         if (error) {
           throw error;
         }
@@ -36,6 +45,11 @@ const fetchData = async () => {
           title: item.name,
         }));
         setData(formattedData);
+
+        const TotalItems = count ?? 0;
+        setTotalPage(Math.ceil(TotalItems/ItemsPerPage))
+
+
       } catch (error) {
         console.log("erro");
       } 
@@ -43,7 +57,7 @@ const fetchData = async () => {
 
     useEffect(() => {
       fetchData();
-    }, [query]);
+    }, [query, currentPage]);
   
 
 
@@ -59,6 +73,7 @@ async function createcategory(event: { preventDefault: () => void; }) {
               console.error('Error updating data:', error);
           } else {
               setEditedCategory(null);
+              fetchData()
           }
       } else {
           const { error } = await supabase
@@ -67,6 +82,8 @@ async function createcategory(event: { preventDefault: () => void; }) {
 
           if (error) {
               console.error("Error inserting data:", error);
+          }else{
+            fetchData()
           }
       }
       setCategoryName('');
@@ -81,6 +98,8 @@ async function createcategory(event: { preventDefault: () => void; }) {
 
     if (error) {
       console.error('Error deleting data:', error);
+    }else{
+      fetchData()
     }
   }
     
@@ -116,6 +135,13 @@ async function createcategory(event: { preventDefault: () => void; }) {
         params.delete('query')
       }
     replace(`${pathname}?${params.toString()}`)
+    }
+
+    const goToPage = (page : number) => {
+      const  params = new URLSearchParams(searchParams )
+      params.set('page',page.toString())
+      replace(`${pathname}?${params.toString()}`)
+
     }
 
 
@@ -173,6 +199,20 @@ async function createcategory(event: { preventDefault: () => void; }) {
             ))}
           </tbody>
         </table>
+
+        <div className="pagination mt-4">
+        {Array.from({ length: totalPage }, (_, index) => (
+          <button
+            key={index + 1}
+            onClick={() => goToPage(index + 1)}
+            className={`btn ${currentPage === index + 1 ? 'btn-primary' : 'btn-default'}`}
+          >
+            {index + 1}
+          </button>
+        ))}
+      </div>
+
+
       </Layout>
     )
 }

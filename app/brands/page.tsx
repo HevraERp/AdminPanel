@@ -15,19 +15,27 @@ export default function brands(){
     const [data, setData] = useState<any[]>([]);
     const [brandName, setBrandName] = useState('')
     const [editedBrand , setEditedBrand] = useState<Brand | null>(null);
+    const [totalPage, setTotalPage] = useState(1);
+
     const {replace} = useRouter();
     const searchParams = useSearchParams();
     const pathname = usePathname();
     const query = searchParams?.get('query') || '';
 
+    const currentPage = Number(searchParams.get('page') || 1);
+    const ItemsPerPage =7;
+
+
 
 const fetchData = async () => {
   // Fetch data
   try {
-    const { data, error } = await supabase
+    const { data, error, count } = await supabase
     .from('brand')
-    .select('*')
-    .ilike('name', `%${query}%`);
+    .select('*', {count: 'exact' })
+    .ilike('name', `%${query}%`)
+    .range((currentPage - 1) * ItemsPerPage, currentPage * ItemsPerPage - 1);
+
     if (error) {
       throw error;
     }
@@ -37,15 +45,19 @@ const fetchData = async () => {
       title: item.name,
     }));
     setData(formattedData);
+
+    const totalItems = count ?? 0;
+    setTotalPage(Math.ceil(totalItems / ItemsPerPage));
+
   } catch (error) {
     console.log("erro");
   } 
 };
+
+
 useEffect(() => {
   fetchData();
-}, [query]);
-
-
+}, [query, currentPage]);
 
 
 async function createBrand(event: { preventDefault: () => void; }) {
@@ -60,6 +72,7 @@ async function createBrand(event: { preventDefault: () => void; }) {
           if (error) {
               console.error('Error updating data:', error);
           } else {
+              fetchData()
               setEditedBrand(null);
           }
       } else {
@@ -75,7 +88,11 @@ async function createBrand(event: { preventDefault: () => void; }) {
 
           if (error) {
               console.error("Error inserting data:", error);
+          }else{
+          
+          fetchData()
           }
+        
       }
       setBrandName('');
   };
@@ -90,6 +107,9 @@ async function   DeleteBrand(item_id :Number){
           if (error) {
             console.error('Error deleting data:', error);
           } 
+          else{
+            fetchData()
+          }
         }
       
     }
@@ -120,10 +140,17 @@ async function   DeleteBrand(item_id :Number){
         const params = new URLSearchParams(searchParams)
         if (term){
               params.set('query',term)
+              params.set('page','1')
         }else{
           params.delete('query')
         }
    replace(`${pathname}?${params.toString()}`)
+      }
+
+      const goToPage = (page:number)=> {
+        const params = new URLSearchParams(searchParams)
+        params.set('page', page.toString());
+        replace(`${pathname}?${params.toString()}`)
       }
 
 return(
@@ -179,6 +206,19 @@ return(
             ))}
           </tbody>
         </table>
+
+        <div className="pagination mt-4">
+        {Array.from({ length: totalPage }, (_, index) => (
+          <button
+            key={index + 1}
+            onClick={() => goToPage(index + 1)}
+            className={`btn ${currentPage === index + 1 ? 'btn-primary' : 'btn-default'}`}
+          >
+            {index + 1}
+          </button>
+        ))}
+      </div>
+
       </Layout>
     )
 }

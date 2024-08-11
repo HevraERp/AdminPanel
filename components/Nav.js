@@ -22,7 +22,7 @@ export default function Nav({show}) {
   return (
 
     <asider
-      className={`top-0 left-0 text-white pr-0 p-4 fixed h-screen bg-blue-900 transition-all ${show ? 'translate-x-0' : '-translate-x-full'} md:static md:translate-x-0`}>
+      className={`top-0 left-0 text-white pr-0 p-4 fixed h-screen  bg-blue-900 transition-all ${show ? 'translate-x-0' : '-translate-x-full'} md:static md:translate-x-0`}>
       <div className="mb-4">
         <Logo />
       </div>

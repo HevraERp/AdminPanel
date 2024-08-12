@@ -4,6 +4,7 @@ import supabase from "@/app/lib/supabaseClient";
 import { useState, useEffect } from "react";
 import Swal from 'sweetalert2';
 import { useSearchParams,usePathname,useRouter } from "next/navigation";
+import { useDebounce } from "use-debounce";
 
 interface Brand {
   _id: number;
@@ -20,7 +21,9 @@ export default function brands(){
     const {replace} = useRouter();
     const searchParams = useSearchParams();
     const pathname = usePathname();
-    const query = searchParams?.get('query') || '';
+    const [query, setQuery] = useState(searchParams?.get('query') || "");
+    const [debouncedText] = useDebounce(query, 400);
+
 
     const currentPage = Number(searchParams.get('page') || 1);
     const ItemsPerPage =7;
@@ -33,7 +36,7 @@ const fetchData = async () => {
     const { data, error, count } = await supabase
     .from('brand')
     .select('*', {count: 'exact' })
-    .ilike('name', `%${query}%`)
+    .ilike('name', `%${debouncedText}%`)
     .range((currentPage - 1) * ItemsPerPage, currentPage * ItemsPerPage - 1);
 
     if (error) {
@@ -57,7 +60,7 @@ const fetchData = async () => {
 
 useEffect(() => {
   fetchData();
-}, [query, currentPage]);
+}, [debouncedText, currentPage]);
 
 
 async function createBrand(event: { preventDefault: () => void; }) {
@@ -137,6 +140,7 @@ async function   DeleteBrand(item_id :Number){
 
   
     const handleSearch = (term : string) =>{
+         setQuery(term)
         const params = new URLSearchParams(searchParams)
         if (term){
               params.set('query',term)

@@ -1,43 +1,73 @@
-import NextAuth, { getServerSession } from "next-auth";
+import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
+import CredentialsProvider from "next-auth/providers/credentials";
+import supabase from "@/app/lib/supabaseClient"; 
+import bcrypt from 'bcryptjs';
 
-const adminEmail = ['lidamahamad7@gmail.com'];
+
+
+const adminEmail = 'lidamahamad7@gmail.com'
 
 export const authOptions = {
     providers: [
-      GoogleProvider({
-        clientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
-        clientSecret: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_SECRET
-      })
-    ],
-    callbacks: {
-  
-      async redirect({url}) {
-        return url;
-      },
-  
-      async session({session, token}) {
-        session.user.id = token.id;
-        return session;
-      },
-      
-      async jwt({token}) {
-        if(adminEmail.includes(token?.email)){
-          return token;
-        }else{
-          return false
+      CredentialsProvider({
+        async authorize(credentials) {
+            if (!credentials) {
+                console.log("No credentials provided");
+                return null;
+            }
+
+            try {
+
+              const { data , error: userError } = await supabase.auth.signInWithPassword({
+                email: credentials.email,
+                password: credentials.password,
+              });
+                if (userError) {
+                    console.error("Database error:", userError);
+                    throw new Error("Database error occurred");
+                }
+                
+                if (data.user) {
+                  return { id: data.user.id, email: data.user.email, name: data.user.user_metadata.full_name };
+                }
+
+            } catch (error) {
+                console.error("Authorization failed:", error);
+                throw new Error(error.message || "Authorization failed");
+            }
         }
-        
-      }
+    }),
+        GoogleProvider({
+            clientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
+            clientSecret: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_SECRET
+        })
+    ],
+
+    debug: true,
+    callbacks: {
+        async redirect({ url }) {
+            return url.startsWith('/') ? url : '/';
+        },
+
+        async session({session, token}) {
+          session.user.id = token.id;
+          return session;
+        },
+   
+        async jwt({ token, user }) {
+          if(adminEmail.includes(token?.email)){
+                return token;
+              }else{
+                return false
+              }
+        }
     },
     session: {
-      jwt: true,
-    },
-  
+        strategy: 'jwt',
+    }
 }
 
-
-const handler =  NextAuth(authOptions);
-
+const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST }

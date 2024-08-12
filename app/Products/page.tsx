@@ -6,17 +6,20 @@ import supabase from "@/app/lib/supabaseClient";
 import { useState, useEffect } from "react";
 import Swal from 'sweetalert2';
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useDebounce } from "use-debounce";
+
 
 export default function Products() {
 
   const [data, setData] = useState<any[]>([]);
   const [totalPages, setTotalPages] = useState(1);
 
-  // to handle search functionality
-  const searchParams = useSearchParams();
-  const pathname = usePathname();
-  const { replace } = useRouter();
-  const query = searchParams?.get('query') || "";
+    // to handle search functionality
+    const searchParams = useSearchParams();
+    const pathname = usePathname();
+    const { replace } = useRouter();
+    const [query, setQuery] = useState(searchParams?.get('query') || "");
+   const [debouncedText] = useDebounce(query, 400);
   
   // handle pagination
   const currentPage = Number(searchParams?.get('page')) || 1;
@@ -27,7 +30,7 @@ export default function Products() {
       const { data, error, count } = await supabase
         .from('products')
         .select('*', { count: 'exact' })
-        .ilike('name', `%${query}%`)
+        .ilike('name', `%${debouncedText}%`)
         .range((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage - 1);
 
       if (error) {
@@ -55,7 +58,7 @@ export default function Products() {
 
   useEffect(() => {
     fetchData();
-  }, [query, currentPage]);
+  }, [debouncedText, currentPage]);
 
   async function DeleteProduct(item_id: Number) {
     if (item_id) {
@@ -89,6 +92,7 @@ export default function Products() {
   }
 
   const handleSearch = (term: string) => {
+    setQuery(term)
     const params = new URLSearchParams(searchParams);
     if (term) {
       params.set('query', term);

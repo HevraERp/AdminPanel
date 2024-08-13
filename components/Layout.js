@@ -2,6 +2,7 @@
 import Nav from "./Nav";
 import Logo from "./Logo";
 import "@/app/globals.css";
+
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
@@ -10,6 +11,7 @@ import { signIn } from "next-auth/react";
 
 export default function Layout({ children }) {
   const [showNav, setShowNav] = useState(false);
+  // const [error, setError] = useState("");
   const router = useRouter();
   const { data: session } = useSession();
 
@@ -28,13 +30,12 @@ export default function Layout({ children }) {
     });
 
     if (result.error) {
-      console.error(result.error);
+      // setError(result.error);
+      console.log(result.error)
     } else {
       router.push('/'); 
     }
   }
-
-
 
   if (!session) {
     return (
@@ -78,6 +79,8 @@ export default function Layout({ children }) {
             >
               Login
             </button>
+            {/* {error && <p style={{ color: "red" }}>{error}</p>} Display error */}
+        
           </form>
           <div className="text-center">
             <button

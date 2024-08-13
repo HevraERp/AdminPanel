@@ -2,9 +2,6 @@ import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import supabase from "@/app/lib/supabaseClient"; 
-import bcrypt from 'bcryptjs';
-
-
 
 const adminEmail = 'lidamahamad7@gmail.com'
 

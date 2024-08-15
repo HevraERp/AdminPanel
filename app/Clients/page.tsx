@@ -1,31 +1,31 @@
 'use client'
 import Layout from "@/components/Layout";
-import supabase from "@/utils/supabase/client";
+import {createClient} from "@/utils/supabase/client";
 import { useState } from "react";
 
 
 export default function brands(){
+  const supabase = createClient()
+  const [data, setData] = useState<any[]>([]);
+  const fetchData = async () => {
+    // Fetch data
+    try {
+      const { data, error } = await supabase.from('clients').select('*');
+      if (error) {
+        throw error;
+      }
 
- const [data, setData] = useState<any[]>([]);
-const fetchData = async () => {
-  // Fetch data
-  try {
-    const { data, error } = await supabase.from('clients').select('*');
-    if (error) {
-      throw error;
-    }
-
-    const formattedData = data.map(item => ({
-      _id: item.id,
-      user_name: item.username,
-      email:item.email,
-    }));
-    setData(formattedData);
-  } catch (error) {
-    console.log("erro");
-  } 
-};
-fetchData();
+      const formattedData = data.map(item => ({
+        _id: item.id,
+        user_name: item.username,
+        email:item.email,
+      }));
+      setData(formattedData);
+    } catch (error) {
+      console.log("erro");
+    } 
+  };
+  fetchData();
 
 return(
 

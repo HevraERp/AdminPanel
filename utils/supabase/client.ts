@@ -1,13 +1,9 @@
-import { createClient } from '@supabase/supabase-js';
+import { createBrowserClient } from '@supabase/ssr'
 
-const supabase_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabase_Key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-if (!supabase_URL || !supabase_Key) {
-  console.log('Missing Supabase URL or Key');
+export function createClient() {
+  // Create a supabase client on the browser with project's credentials
+  return createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
 }
-
-const supabase = createClient(supabase_URL, supabase_Key);
-
-
-export default supabase;

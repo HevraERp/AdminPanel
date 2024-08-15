@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Layout from "@/components/Layout";
-import supabase from "@/utils/supabase/client";
+import {createClient} from "@/utils/supabase/client";
 import { useState, useEffect } from "react";
 import Swal from 'sweetalert2';
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -10,7 +10,8 @@ import { useDebounce } from "use-debounce";
 
 
 export default function Products() {
-
+  
+  const supabase = createClient();
   const [data, setData] = useState<any[]>([]);
   const [totalPages, setTotalPages] = useState(1);
 

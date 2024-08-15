@@ -6,7 +6,7 @@ export default function ErrorPage() {
   const router = useRouter();
 
   const handleRedirect = () => {
-    router.push('/login'); // Assuming your login page is at /login
+    router.push('/login'); 
   };
 
   return (

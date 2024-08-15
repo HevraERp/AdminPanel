@@ -1,6 +1,6 @@
 'use client'
 import Layout from "@/components/Layout";
-import supabase from "@/utils/supabase/client";
+import {createClient} from "@/utils/supabase/client";
 import { useState,useEffect } from "react";
 import Swal from 'sweetalert2';
 import { useSearchParams,usePathname, useRouter } from "next/navigation";
@@ -12,7 +12,8 @@ interface Category {
 }
 
 export default function  catagories(){
-
+ 
+    const supabase = createClient()
     const [data, setData] = useState<any[]>([]);
     const [categoryName, setCategoryName] = useState('');
     const [editedCategory, setEditedCategory] = useState<Category | null>(null);

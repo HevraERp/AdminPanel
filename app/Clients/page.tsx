@@ -1,6 +1,6 @@
 'use client'
 import Layout from "@/components/Layout";
-import supabase from "@/app/lib/supabaseClient"; 
+import supabase from "@/utils/supabase/client";
 import { useState } from "react";
 
 

@@ -1,6 +1,6 @@
 'use client'
 import Layout from "@/components/Layout";
-import supabase from "@/app/lib/supabaseClient"; 
+import supabase from "@/utils/supabase/client";
 import { useState, useEffect } from "react";
 import Swal from 'sweetalert2';
 import { useSearchParams,usePathname,useRouter } from "next/navigation";

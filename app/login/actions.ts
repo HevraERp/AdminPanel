@@ -1,8 +1,6 @@
 'use server'
-
-import { revalidatePath } from 'next/cache'
-import { redirect } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
+
 
 export async function login(formData: FormData) {
   const supabase = createClient()
@@ -12,30 +10,25 @@ export async function login(formData: FormData) {
     password: formData.get('password') as string,
   }
 
-  const { error } = await supabase.auth.signInWithPassword(data)
+ 
+  const { data: user, error: signInError } = await supabase.auth.signInWithPassword(data)
 
-  if (error) {
-     redirect('/error')
+  if (signInError || !user.user) {
+    return { error: "You don't have an account" }
   }
 
-  revalidatePath('/', 'layout')
-  redirect('/')
-}
+  const { data: userRoles, error: roleError } = await supabase
+    .from('clients')
+    .select('user_role')
+    .eq('email', user.user.email)
+    .single()
 
-export async function signup(formData: FormData) {
-  const supabase = createClient()
-  
-  const data = {
-    email: formData.get('email') as string,
-    password: formData.get('password') as string,
+  if (roleError) {
+    return { error: 'Error fetching user role' }
   }
-
-  const { error } = await supabase.auth.signUp(data)
-
-  if (error) {
-    redirect('/error')
+  if (userRoles?.user_role === 'admin') {
+    return { success: true }
+  } else {
+    return { error: 'You are not an admin' }
   }
-
-  revalidatePath('/', 'layout')
-  redirect('/')
 }

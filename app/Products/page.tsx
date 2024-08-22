@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Layout from "@/components/Layout";
-import {createClient} from "@/utils/supabase/client";
+import { supabase } from "@/utils/supabase/client";
 import { useState, useEffect } from "react";
 import Swal from 'sweetalert2';
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -11,7 +11,7 @@ import { useDebounce } from "use-debounce";
 
 export default function Products() {
   
-  const supabase = createClient();
+
   const [data, setData] = useState<any[]>([]);
   const [totalPages, setTotalPages] = useState(1);
 
@@ -44,6 +44,7 @@ export default function Products() {
         price: item.price,
         image: item.img_url,
         description: item.description,
+        quantity :  item.quantity,
 
       }));
       setData(formattedData);
@@ -129,6 +130,7 @@ export default function Products() {
             <td>Product name</td>
             <td>Product Description</td>
             <td>Product Price</td>
+            <td>Product quantity</td>
             <td></td>
             <td></td>
           </tr>
@@ -140,6 +142,7 @@ export default function Products() {
               <td className="text-black">{product.title}</td>
               <td className="text-black">{product.description}</td>
               <td className="text-black">{product.price}</td>
+              <td className="text-black">{product.quantity}</td>
               <td>
                 <Link className="btn-default" href={{
                   pathname: '/Products/Edit/',

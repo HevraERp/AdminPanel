@@ -1,14 +1,13 @@
 'use client';
 
 import Layout from "@/components/Layout";
-import {createClient} from "@/utils/supabase/client";
+import { supabase } from "@/utils/supabase/client";
 import ProductForm from "@/components/ProductForm";
 import { useState } from "react";
 
 
 export default function Edit({ searchParams }: { searchParams: { id: string } }) {
     const item_id = searchParams.id;
-    const supabase = createClient();
     const [item, setItem] = useState<any>(null);
 
 

@@ -33,7 +33,7 @@ table.basic{
 table.basic thead tr td,
 table.basic thead tr th
 {
-  @apply text-sm text-gray-600 bg-blue-100 uppercase border-b border-blue-400 px-4 py-2;
+  @apply text-sm text-gray-600 bg-gray-200 uppercase border-b border-gray-400 px-4 py-2;
 }
 table.basic tr td{
   @apply px-4 py-1 border-l border-b border-black ;
@@ -54,3 +54,7 @@ table.basic a{
 .login-button {
   @apply bg-blue-500 text-white text-xl font-semibold py-3 px-6 rounded-lg shadow-lg hover:bg-blue-600 transition duration-300 ease-in-out;
 }
+
+
+
+

@@ -28,6 +28,7 @@ export default function ProductForm({
   const [description, setDescription] = useState(existing_description || "");
   const [img_url, setImg_url] = useState(existing_img || "");
   const [brands, setBrands] = useState<any[]>([]);
+  const [error, setError] = useState<string | null>(null);
   const [categories, setCategories] = useState<any[]>([]);
   const [selectedBrand, setSelectedBrand] = useState(existing_brand || "");
   const [selectedCategory, setSelectedCategory] = useState(
@@ -108,6 +109,13 @@ export default function ProductForm({
   const handleSubmit = async (event: { preventDefault: () => void }) => {
     event.preventDefault();
 
+    if ( !img_url) {
+      setError("please upload an image of the product");
+      return;
+    }
+
+
+
     try {
       if (id) {
         console.log(id);
@@ -162,6 +170,7 @@ export default function ProductForm({
       <input
         type="text"
         placeholder="New Product"
+        required
         value={title}
         onChange={(e) => setTitle(e.target.value)}
       />
@@ -170,6 +179,7 @@ export default function ProductForm({
       <input
         type="text"
         placeholder="description"
+        required
         value={description}
         onChange={(e) => setDescription(e.target.value)}
       />
@@ -177,6 +187,7 @@ export default function ProductForm({
       <label>Brand</label>
       <select
         value={selectedBrand}
+        required
         onChange={(e) => setSelectedBrand(e.target.value)}
       >
         <option value="" disabled>
@@ -192,6 +203,7 @@ export default function ProductForm({
       <label>Category</label>
       <select
         value={selectedCategory}
+        required
         onChange={(e) => setSelectedCategory(e.target.value)}
       >
         <option value="" disabled>
@@ -243,12 +255,20 @@ export default function ProductForm({
         type="number"
         placeholder="Price"
         value={price}
-        onChange={(e) => setPrice(e.target.value)}
+        required
+        onChange={(e) => setPrice(e.target.value)
+        }
       />
 
       <button type="submit" className="btn-primary">
         Save
       </button>
+  
+      {error && (
+            <div className="mt-4 p-4 border border-red-300 rounded-md bg-red-50 text-red-700">
+              <p className="text-sm">{error}</p>
+            </div>
+          )}
     </form>
   );
 }

@@ -4,6 +4,7 @@ import { supabase } from "@/utils/supabase/client";
 import { type User } from '@supabase/supabase-js'
 
 export default function AccountForm({ user }: { user: User | null }) {
+  
   const [email, setEmail] = useState<string | null>(user?.email || '')
 
   async function updateProfile({ email }: { email: string | null }) {
